@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.wishreminder.app"
+        version="2.0.0"
+        xmlns="http://www.w3.org/ns/widgets"
+        xmlns:cdv="http://cordova.apache.org/ns/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <n>WishReminder</n>
+  <description>Schedule WhatsApp wishes — auto-sends at the right time.</description>
+  <author email="you@example.com">Your Name</author>
+  <content src="index.html" />
+
+  <access origin="*" />
+  <allow-intent href="http://*/*" />
+  <allow-intent href="https://*/*" />
+  <allow-intent href="whatsapp://*" />
+  <allow-intent href="https://wa.me/*" />
+  <allow-navigation href="*" />
+
+  <preference name="android-minSdkVersion"         value="23" />
+  <preference name="android-targetSdkVersion"      value="34" />
+  <preference name="Orientation"                   value="portrait" />
+  <preference name="StatusBarBackgroundColor"      value="#C2185B" />
+  <preference name="StatusBarStyle"                value="lightcontent" />
+  <preference name="BackgroundColor"               value="0xFFFDF6EE" />
+  <preference name="SplashScreenDelay"             value="0" />
+
+  <!-- Cordova plugins -->
+  <plugin name="cordova-plugin-whitelist"        spec="^1.3.5" />
+  <plugin name="cordova-plugin-inappbrowser"     spec="^5.0.0" />
+  <plugin name="cordova-plugin-device"           spec="^2.1.0" />
+
+  <!-- Our custom local plugin (installed via `cordova plugin add ./`) -->
+  <plugin name="cordova-plugin-wish-sender"      spec="file:." />
+
+  <platform name="android">
+    <icon src="res/drawable/icon.png" />
+  </platform>
+
+</widget>
