@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build WishReminder APK
 
 on:
   push:
@@ -11,29 +11,36 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '18'
 
-      - uses: android-actions/setup-android@v3
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: '34.0.0'
 
-      - name: Install Cordova CLI
-        run: npm install -g cordova@12
+      - name: Install Cordova 12 (pinned)
+        run: npm install -g cordova@12.0.0
 
-      - name: Install npm deps
+      - name: Install npm dependencies
         run: npm install
 
-      - name: Add Android platform
-        run: cordova platform add android@13 --save
+      - name: Add Android platform 12.0.1 (pinned - stable with Cordova 12)
+        run: cordova platform add android@12.0.1 --save
 
-      - name: Install standard plugins
+      - name: Install Cordova plugins
         run: |
           cordova plugin add cordova-plugin-whitelist
           cordova plugin add cordova-plugin-inappbrowser
@@ -45,9 +52,33 @@ jobs:
       - name: Build Debug APK
         run: cordova build android --debug
 
-      - name: Upload APK
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: WishReminder-v2-debug
+          name: WishReminder-debug
           path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+
+      - name: Build Release APK (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: cordova build android --release -- --packageType=apk
+
+      - name: Sign Release APK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.HAS_KEYSTORE == 'true'
+        env:
+          HAS_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: platforms/android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Release APK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: WishReminder-release
+          path: platforms/android/app/build/outputs/apk/release/*.apk
+          retention-days: 90
