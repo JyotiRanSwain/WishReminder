@@ -28,13 +28,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Gradle 8.7 (cordova-android 12 requires Gradle 8.x)
-        run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip -O /tmp/gradle.zip
-          sudo unzip -q /tmp/gradle.zip -d /opt/gradle
-          sudo ln -sf /opt/gradle/gradle-8.7/bin/gradle /usr/local/bin/gradle
-          gradle --version
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -50,23 +43,25 @@ jobs:
       - name: Add Android platform 12.0.1
         run: cordova platform add android@12.0.1 --save
 
-      - name: Force Gradle wrapper to 8.7
-        run: |
-          PROPS=$(find platforms/android -name "gradle-wrapper.properties" | head -1)
-          echo "Found wrapper at: $PROPS"
-          echo "distributionBase=GRADLE_USER_HOME"          >  $PROPS
-          echo "distributionPath=wrapper/dists"             >> $PROPS
-          echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip" >> $PROPS
-          echo "zipStoreBase=GRADLE_USER_HOME"              >> $PROPS
-          echo "zipStorePath=wrapper/dists"                 >> $PROPS
-          cat $PROPS
-
       - name: Install Cordova plugins
         run: |
           cordova plugin add cordova-plugin-inappbrowser
           cordova plugin add cordova-plugin-device
           cordova plugin add ./plugin
           cordova plugin list
+
+      - name: Pin Gradle to 8.7 (create wrapper properties before first build)
+        run: |
+          mkdir -p platforms/android/gradle/wrapper
+          cat > platforms/android/gradle/wrapper/gradle-wrapper.properties << 'EOF'
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          EOF
+          echo "--- wrapper properties ---"
+          cat platforms/android/gradle/wrapper/gradle-wrapper.properties
 
       - name: Build Debug APK
         run: cordova build android --debug
