@@ -5,6 +5,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
@@ -37,7 +40,7 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      - name: Add Android platform 12.0.1 (pinned - stable with Cordova 12)
+      - name: Add Android platform 12.0.1
         run: cordova platform add android@12.0.1 --save
 
       - name: Install Cordova plugins
@@ -52,33 +55,15 @@ jobs:
       - name: Build Debug APK
         run: cordova build android --debug
 
-      - name: Upload Debug APK
+      - name: Rename APK to wishsender.apk
+        run: |
+          mkdir -p output
+          cp platforms/android/app/build/outputs/apk/debug/app-debug.apk output/wishsender.apk
+          echo "APK ready: $(ls -lh output/wishsender.apk)"
+
+      - name: Upload wishsender.apk
         uses: actions/upload-artifact@v4
         with:
-          name: WishReminder-debug
-          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          name: wishsender
+          path: output/wishsender.apk
           retention-days: 30
-
-      - name: Build Release APK (main branch only)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: cordova build android --release -- --packageType=apk
-
-      - name: Sign Release APK
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.HAS_KEYSTORE == 'true'
-        env:
-          HAS_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}
-        uses: r0adkll/sign-android-release@v1
-        with:
-          releaseDirectory: platforms/android/app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Upload Release APK
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: actions/upload-artifact@v4
-        with:
-          name: WishReminder-release
-          path: platforms/android/app/build/outputs/apk/release/*.apk
-          retention-days: 90
