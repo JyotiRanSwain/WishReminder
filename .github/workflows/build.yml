@@ -60,14 +60,18 @@ jobs:
       - name: Build Release APK
         env:
           CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL: https://services.gradle.org/distributions/gradle-8.7-bin.zip
-        run: cordova build android --release --device
+        # Adding --packageType=apk forces the creation of an APK instead of an AAB
+        run: cordova build android --release --device -- --packageType=apk
 
       - name: Rename and Move APK
         if: success()
         run: |
           mkdir -p output
-          find platforms/android/app/build/outputs/apk/release/ -name "*.apk" -exec cp {} output/wishsender.apk \;
-
+          # Look in the outputs folder generally to find the generated release APK
+          find platforms/android/app/build/outputs/ -name "*release-unsigned.apk" -exec cp {} output/wishsender.apk \;
+          # Or if it's already signed:
+          find platforms/android/app/build/outputs/ -name "*release.apk" -exec cp {} output/wishsender.apk \;
+          
       - name: Upload wishsender.apk
         if: success()
         uses: actions/upload-artifact@v4
