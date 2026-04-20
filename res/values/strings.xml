@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="accessibility_service_description">WishReminder uses accessibility to automatically tap the Send button in WhatsApp when your scheduled wish time arrives. It only activates when WhatsApp is open by this app.</string>
-</resources>
