@@ -7,5 +7,5 @@
     android:packageNames="com.whatsapp,com.whatsapp.w4b"
     android:notificationTimeout="100"
     android:canRetrieveWindowContent="true"
-    android:description="Allows WishReminder to automate message sending for WhatsApp."
+    android:description="@string/accessibility_service_description"
 />
