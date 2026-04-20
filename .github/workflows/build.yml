@@ -28,12 +28,12 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install correct Gradle version (8.7 — required by cordova-android 12)
+      - name: Install Gradle 8.7 (cordova-android 12 requires Gradle 8.x)
         run: |
           wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip -O /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d /opt/gradle
-          echo "/opt/gradle/gradle-8.7/bin" >> $GITHUB_PATH
-          /opt/gradle/gradle-8.7/bin/gradle --version
+          sudo unzip -q /tmp/gradle.zip -d /opt/gradle
+          sudo ln -sf /opt/gradle/gradle-8.7/bin/gradle /usr/local/bin/gradle
+          gradle --version
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -50,13 +50,17 @@ jobs:
       - name: Add Android platform 12.0.1
         run: cordova platform add android@12.0.1 --save
 
-      - name: Pin Gradle wrapper to 8.7 in the generated Android project
+      - name: Force Gradle wrapper to 8.7 (overwrite the properties file directly)
         run: |
-          cd platforms/android
-          ./gradlew wrapper --gradle-version=8.7 --distribution-type=bin
-          cat gradle/wrapper/gradle-wrapper.properties
+          PROPS=platforms/android/gradle/wrapper/gradle-wrapper.properties
+          echo "distributionBase=GRADLE_USER_HOME"          >  $PROPS
+          echo "distributionPath=wrapper/dists"             >> $PROPS
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip" >> $PROPS
+          echo "zipStoreBase=GRADLE_USER_HOME"              >> $PROPS
+          echo "zipStorePath=wrapper/dists"                 >> $PROPS
+          cat $PROPS
 
-      - name: Install cordova plugins
+      - name: Install Cordova plugins
         run: |
           cordova plugin add cordova-plugin-inappbrowser
           cordova plugin add cordova-plugin-device
