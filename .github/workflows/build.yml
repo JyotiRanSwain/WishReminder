@@ -10,11 +10,9 @@ env:
 
 jobs:
   build-android:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-
+    runs-runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -23,12 +21,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Node.js 18
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      # Forces the runner to use Gradle 8.7 (Fixes the XmlParser error)
       - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -38,12 +30,7 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           api-level: 34
-          build-tools: '34.0.0'
-
-      # Explicitly install the version Cordova 12 requires for internal scripts
-      - name: Install Specific Build Tools 33.0.2
-        run: |
-          sdkmanager "build-tools;33.0.2"
+          build-tools: '33.0.2'
 
       - name: Install Cordova
         run: npm install -g cordova@12.0.0
@@ -51,36 +38,23 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      - name: Prepare Platform and Local Plugin
+      - name: Clean and Prepare Plugin
         run: |
-          # Remove existing platform to ensure a clean slate
+          # Adding platform if not exists
           cordova platform add android@12.0.1 --save || true
-          
-          # Force-reinstall local plugin to sync your plugin.xml and resource changes
+          # FORCE removal and addition of the local plugin to sync strings.xml
           cordova plugin remove cordova-plugin-wish-sender || true
           cordova plugin add ./plugin
-          
-          # Prepare copies the resource-file into the platform res/xml folder
+          # Syncs files to platforms/android folder
           cordova prepare android
 
       - name: Build Debug APK
         env:
-          # Double-down on forcing the correct Gradle version inside Cordova
           CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL: https://services.gradle.org/distributions/gradle-8.7-bin.zip
         run: cordova build android --debug --device
 
-      - name: Rename and Move APK
-        if: success()
-        run: |
-          mkdir -p output
-          find platforms/android/app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} output/wishsender.apk \;
-          echo "Build successful. APK details:"
-          ls -lh output/wishsender.apk
-
-      - name: Upload wishsender.apk
-        if: success()
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: wishsender
-          path: output/wishsender.apk
-          retention-days: 30
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
