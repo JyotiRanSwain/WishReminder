@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: '18'
 
+      # Pinning Gradle 8.7 avoids the XmlParser error in newer versions
       - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -39,6 +40,7 @@ jobs:
           api-level: 34
           build-tools: '34.0.0'
 
+      # Required for Cordova 12's build verification
       - name: Install Specific Build Tools 33.0.2
         run: |
           sdkmanager "build-tools;33.0.2"
@@ -51,27 +53,29 @@ jobs:
 
       - name: Fresh Prepare Platform and Local Plugin
         run: |
+          # Wipe existing folders to prevent XML merge conflicts
           rm -rf platforms/android
           rm -rf plugins/cordova-plugin-wish-sender
+          
+          # Add plugin first, then platform
           cordova plugin add ./plugin
           cordova platform add android@12.0.1 --save
           cordova prepare android
 
-      - name: Build Release APK
+      - name: Build Debug APK
         env:
           CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL: https://services.gradle.org/distributions/gradle-8.7-bin.zip
-        # Adding --packageType=apk forces the creation of an APK instead of an AAB
-        run: cordova build android --release --device -- --packageType=apk
+        # Using --debug ensures the APK is signed with a debug key
+        run: cordova build android --debug --device
 
       - name: Rename and Move APK
         if: success()
         run: |
           mkdir -p output
-          # Look in the outputs folder generally to find the generated release APK
-          find platforms/android/app/build/outputs/ -name "*release-unsigned.apk" -exec cp {} output/wishsender.apk \;
-          # Or if it's already signed:
-          find platforms/android/app/build/outputs/ -name "*release.apk" -exec cp {} output/wishsender.apk \;
-          
+          # Locate the signed debug APK and move it to output
+          find platforms/android/app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} output/wishsender.apk \;
+          echo "Debug build successful. File ready at output/wishsender.apk"
+
       - name: Upload wishsender.apk
         if: success()
         uses: actions/upload-artifact@v4
