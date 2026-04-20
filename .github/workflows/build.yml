@@ -34,7 +34,7 @@ jobs:
           api-level: 34
           build-tools: '34.0.0'
 
-      - name: Install Cordova 12 (pinned)
+      - name: Install Cordova 12
         run: npm install -g cordova@12.0.0
 
       - name: Install npm dependencies
@@ -43,23 +43,25 @@ jobs:
       - name: Add Android platform 12.0.1
         run: cordova platform add android@12.0.1 --save
 
-      - name: Install Cordova plugins
+      - name: Install standard Cordova plugins
         run: |
           cordova plugin add cordova-plugin-whitelist
           cordova plugin add cordova-plugin-inappbrowser
           cordova plugin add cordova-plugin-device
 
-      - name: Install local WishSender plugin
-        run: cordova plugin add .
+      - name: Install WishSender plugin from plugin/ subfolder
+        run: |
+          cordova plugin add ./plugin --nofetch
+          cordova plugin list
 
       - name: Build Debug APK
         run: cordova build android --debug
 
-      - name: Rename APK to wishsender.apk
+      - name: Rename to wishsender.apk
         run: |
           mkdir -p output
           cp platforms/android/app/build/outputs/apk/debug/app-debug.apk output/wishsender.apk
-          echo "APK ready: $(ls -lh output/wishsender.apk)"
+          ls -lh output/wishsender.apk
 
       - name: Upload wishsender.apk
         uses: actions/upload-artifact@v4

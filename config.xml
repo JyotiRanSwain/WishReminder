@@ -25,13 +25,17 @@
   <preference name="BackgroundColor"               value="0xFFFDF6EE" />
   <preference name="SplashScreenDelay"             value="0" />
 
-  <plugin name="cordova-plugin-whitelist"        spec="^1.3.5" />
-  <plugin name="cordova-plugin-inappbrowser"     spec="^5.0.0" />
-  <plugin name="cordova-plugin-device"           spec="^2.1.0" />
-  <plugin name="cordova-plugin-wish-sender"      spec="file:." />
+  <plugin name="cordova-plugin-whitelist"    spec="^1.3.5" />
+  <plugin name="cordova-plugin-inappbrowser" spec="^5.0.0" />
+  <plugin name="cordova-plugin-device"       spec="^2.1.0" />
 
   <platform name="android">
-    <icon src="res/drawable/icon.png" />
+    <icon density="ldpi"    src="res/drawable/icon.png" />
+    <icon density="mdpi"    src="res/drawable-mdpi/icon.png" />
+    <icon density="hdpi"    src="res/drawable-hdpi/icon.png" />
+    <icon density="xhdpi"   src="res/drawable-xhdpi/icon.png" />
+    <icon density="xxhdpi"  src="res/drawable-xxhdpi/icon.png" />
+    <icon density="xxxhdpi" src="res/drawable-xxxhdpi/icon.png" />
   </platform>
 
 </widget>

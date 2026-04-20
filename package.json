@@ -4,17 +4,14 @@
   "version": "2.0.0",
   "description": "Auto-send WhatsApp wishes at scheduled time",
   "scripts": {
-    "build": "cordova build android",
-    "run:android": "cordova run android",
-    "release": "cordova build android --release",
-    "setup": "cordova platform add android@12.0.1 && cordova plugin add cordova-plugin-whitelist && cordova plugin add cordova-plugin-inappbrowser && cordova plugin add cordova-plugin-device && cordova plugin add ."
+    "build": "cordova build android --debug",
+    "run:android": "cordova run android"
   },
   "cordova": {
     "platforms": ["android"]
   },
   "devDependencies": {
-    "cordova": "12.0.0",
-    "cordova-android": "12.0.1"
+    "cordova": "12.0.0"
   },
   "license": "MIT"
 }
