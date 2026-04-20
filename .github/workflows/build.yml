@@ -10,7 +10,7 @@ env:
 
 jobs:
   build-android:
-    runs-on: ubuntu-latest # Using latest for better action support
+    runs-on: ubuntu-latest
     timeout-minutes: 45
 
     steps:
@@ -28,12 +28,17 @@ jobs:
         with:
           node-version: '18'
 
-      # This is the "Magic" step. It forces the system to use 8.7 
-      # and ignores the pre-installed 9.4.1.
+      # Forces the environment to use a version of Gradle that has XmlParser
       - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: '33.0.2'
 
       - name: Install Cordova
         run: npm install -g cordova@12.0.0
@@ -51,8 +56,6 @@ jobs:
           cordova plugin add ./plugin
 
       - name: Build Debug APK
-        # We set the CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL env var 
-        # to double-down on forcing the version.
         env:
           CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL: https://services.gradle.org/distributions/gradle-8.7-bin.zip
         run: cordova build android --debug --device
