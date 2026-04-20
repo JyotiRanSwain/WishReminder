@@ -29,7 +29,6 @@
       <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
       <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
       <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
-      <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     </config-file>
 
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
@@ -67,9 +66,9 @@
     <source-file src="src/android/java/com/wishreminder/plugin/WishAccessibilityService.java" target-dir="src/com/wishreminder/plugin" />
 
     <resource-file src="src/android/res/xml/accessibility_service_config.xml" target="res/xml/accessibility_service_config.xml" />
+    
     <config-file target="res/values/strings.xml" parent="/resources">
-      <string name="accessibility_service_description">Allows WishReminder to automate message sending for WhatsApp.</string>
+        <string name="accessibility_service_description">Allows WishReminder to automate message sending for WhatsApp.</string>
     </config-file>
-
   </platform>
 </plugin>
