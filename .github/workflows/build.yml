@@ -28,7 +28,6 @@ jobs:
         with:
           node-version: '18'
 
-      # Fixes the Gradle 9 / XmlParser error by pinning to 8.7
       - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -40,7 +39,6 @@ jobs:
           api-level: 34
           build-tools: '34.0.0'
 
-      # Required for Cordova 12's internal requirement checks
       - name: Install Specific Build Tools 33.0.2
         run: |
           sdkmanager "build-tools;33.0.2"
@@ -53,34 +51,22 @@ jobs:
 
       - name: Fresh Prepare Platform and Local Plugin
         run: |
-          # 1. Complete Cleanup: Remove existing folders to avoid XML conflicts
           rm -rf platforms/android
           rm -rf plugins/cordova-plugin-wish-sender
-          
-          # 2. Add local plugin first: 
-          # This ensures Cordova has the plugin manifest ready before creating the platform
           cordova plugin add ./plugin
-          
-          # 3. Add Android Platform:
-          # This will now correctly merge the plugin's config-file into the new strings.xml
           cordova platform add android@12.0.1 --save
-          
-          # 4. Final sync
           cordova prepare android
 
-      - name: Build Debug APK
+      - name: Build Release APK
         env:
-          # Ensures the internal gradlew uses the correct version
           CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL: https://services.gradle.org/distributions/gradle-8.7-bin.zip
-        run: cordova build android --debug --device
+        run: cordova build android --release --device
 
       - name: Rename and Move APK
         if: success()
         run: |
           mkdir -p output
-          # Locate the APK regardless of the internal folder structure
-          find platforms/android/app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} output/wishsender.apk \;
-          echo "Build Complete. Artifact found at output/wishsender.apk"
+          find platforms/android/app/build/outputs/apk/release/ -name "*.apk" -exec cp {} output/wishsender.apk \;
 
       - name: Upload wishsender.apk
         if: success()
