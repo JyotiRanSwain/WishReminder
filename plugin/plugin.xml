@@ -67,7 +67,9 @@
     <source-file src="src/android/java/com/wishreminder/plugin/WishAccessibilityService.java" target-dir="src/com/wishreminder/plugin" />
 
     <resource-file src="src/android/res/xml/accessibility_service_config.xml" target="res/xml/accessibility_service_config.xml" />
-    <resource-file src="src/android/res/values/strings.xml" target="res/values/strings.xml" />
+    <config-file target="res/values/strings.xml" parent="/resources">
+      <string name="accessibility_service_description">Allows WishReminder to automate message sending for WhatsApp.</string>
+    </config-file>
 
   </platform>
 </plugin>
