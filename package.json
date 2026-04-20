@@ -1,11 +1,17 @@
 {
-  "name": "cordova-plugin-wish-sender",
-  "version": "1.0.0",
-  "description": "AlarmManager + Accessibility auto-send for WhatsApp",
+  "name": "wish-reminder",
+  "displayName": "WishReminder",
+  "version": "2.0.0",
+  "description": "Auto-send WhatsApp wishes at scheduled time",
+  "scripts": {
+    "build": "cordova build android --debug",
+    "run:android": "cordova run android"
+  },
   "cordova": {
-    "id": "cordova-plugin-wish-sender",
     "platforms": ["android"]
   },
-  "keywords": ["cordova", "android", "whatsapp"],
+  "devDependencies": {
+    "cordova": "12.0.0"
+  },
   "license": "MIT"
 }
