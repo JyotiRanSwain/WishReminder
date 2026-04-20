@@ -50,12 +50,13 @@ jobs:
       - name: Add Android platform 12.0.1
         run: cordova platform add android@12.0.1 --save
 
-      - name: Force Gradle wrapper to 8.7 (overwrite the properties file directly)
+      - name: Force Gradle wrapper to 8.7
         run: |
-          PROPS=platforms/android/gradle/wrapper/gradle-wrapper.properties
+          PROPS=$(find platforms/android -name "gradle-wrapper.properties" | head -1)
+          echo "Found wrapper at: $PROPS"
           echo "distributionBase=GRADLE_USER_HOME"          >  $PROPS
           echo "distributionPath=wrapper/dists"             >> $PROPS
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip" >> $PROPS
+          echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip" >> $PROPS
           echo "zipStoreBase=GRADLE_USER_HOME"              >> $PROPS
           echo "zipStorePath=wrapper/dists"                 >> $PROPS
           cat $PROPS
