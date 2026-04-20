@@ -22,6 +22,8 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          # This ensures the JAVA_HOME is set correctly for the shell
+          check-latest: false
 
       - name: Set up Node.js 18
         uses: actions/setup-node@v4
@@ -45,24 +47,22 @@ jobs:
           cordova plugin add cordova-plugin-inappbrowser
           cordova plugin add cordova-plugin-device
           cordova plugin add ./plugin
-          cordova plugin list
 
-      # This step is critical: It forces the use of a compatible Gradle version 
-      # and prevents the runner from using the incompatible Gradle 9.x
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 8.7
+      # FORCE Gradle 8.7 inside the actual Android project
+      # This fixes the "XmlParser" error by replacing the Gradle 9.x files
+      - name: Force Gradle 8.7 Wrapper
+        run: |
+          cd platforms/android
+          gradle wrapper --gradle-version 8.7
 
       - name: Build Debug APK
-        # We use --device to skip emulator checks and ensure standard build
-        run: cordova build android --debug --verbose
+        # We use --device to ignore emulator requirements
+        run: cordova build android --debug --device --verbose
 
-      - name: Rename to wishsender.apk
+      - name: Rename and Move APK
         run: |
           mkdir -p output
           find platforms/android/app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} output/wishsender.apk \;
-          ls -lh output/wishsender.apk
 
       - name: Upload wishsender.apk
         uses: actions/upload-artifact@v4
